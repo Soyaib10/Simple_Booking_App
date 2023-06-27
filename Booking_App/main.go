@@ -2,8 +2,7 @@ package main
 
 import (
 	"fmt"
-	"strings"
-	"BOOKING_APP/helper"
+	"strconv"
 )
 
 // variables
@@ -11,7 +10,7 @@ const conferenceTickets int = 50
 
 var conferenceName string = "GO CONFERENCE"
 var remainingTickets int = 50
-var bookings []string // var bookings = []string{}
+var bookings = make([]map[string]string, 0)
 
 func greetUsers() {
 	fmt.Printf("Welcome to %v booking application", conferenceName)
@@ -42,15 +41,26 @@ func getUserInput() (string, string, string, int) {
 func getFirstNames() []string {
 	firstNames := []string{}
 	for _, element := range bookings {
-		var names = strings.Fields(element)
-		firstNames = append(firstNames, names[0])
+		firstNames = append(firstNames, element["firstName"])
 	}
 	return firstNames
 }
 
 func bookTickets(userTickets int, firstName string, lastName string, email string) {
 	remainingTickets -= userTickets
-	bookings = append(bookings, firstName+" "+lastName)
+
+	// create a map
+	var userData = make(map[string]string)
+	userData["firstName"] = firstName
+	userData["lastName"] = lastName
+	userData["email"] = email
+	userData["userTickets"] = strconv.FormatInt(int64(userTickets), 10)
+
+
+
+
+	bookings = append(bookings, userData)
+	fmt.Printf("List of bookings are: %v\n", bookings)
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will receive a confirmation email at %v.\n", firstName, lastName, userTickets, email)
 	fmt.Printf("%v tickets are remaining for %v.\n", remainingTickets, conferenceName)
 }
@@ -64,7 +74,7 @@ func main() {
 		firstName, lastName, email, userTickets := getUserInput()
 
 		// check if user input is valid or not
-		isValidName, isValidEmail, isValidUserTicket := helper.ValidUserInput(firstName, lastName, email, userTickets, remainingTickets)
+		isValidName, isValidEmail, isValidUserTicket := validUserInput(firstName, lastName, email, userTickets)
 
 		if isValidName && isValidEmail && isValidUserTicket {
 			// call book ticket function
